@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack",
+    "dev": "webpack serve --env development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "\"rheongs\"",
@@ -18,9 +18,12 @@
     "@babel/plugin-proposal-class-properties": "^7.16.7",
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-react": "^7.16.7",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.6",
     "babel-loader": "^8.2.5",
+    "react-refresh": "^0.13.0",
     "webpack": "^5.72.1",
-    "webpack-cli": "^4.9.2"
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.9.0"
   },
   "description": ""
 }
