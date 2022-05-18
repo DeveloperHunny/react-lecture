@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import WordRelay from "./WordRelay";
-import NumberBaseBall from "./NumberBaseBall";
-import Test from "./RenderTest";
-import ResponseCheck from "./ResponseCheck";
+import WordRelay from "./wordRelay/WordRelay";
+import NumberBaseBall from "./numberBaseBall/NumberBaseBall";
+import Test from "./numberBaseBall/RenderTest";
+import ResponseCheck from "./responseCheck/ResponseCheck";
+import RSP from "./RSP";
 
-ReactDOM.render(<ResponseCheck />, document.querySelector('#root'));
-// ReactDOM.render(<Test />, document.querySelector('#root'));
+ReactDOM.render(<RSP />, document.querySelector('#root'));
