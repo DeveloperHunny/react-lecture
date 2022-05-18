@@ -1,7 +1,5 @@
 import React, { PureComponent} from "react";
 
-//COMMIT TEST
-
 class Test extends PureComponent{
     state = {
         counter : 0,
