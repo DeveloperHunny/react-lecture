@@ -1,82 +1,83 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
+import Try from "./Try";
+
+const {useState, useRef} = React;
 
 function getNumbers(){
-    let number = '';
+    const candidate = [1,2,3,4,5,6,7,8,9];
+    const array = [];
     for(let i = 0; i < 4; i++){
-        let num = Math.floor(Math.random() * 9 +1);
-        number += num.toString();
+        const chosen = candidate.splice(Math.floor(Math.random() * (9 - i)), 1)[0];
+        array.push(chosen);
     }
-
-    return number;
+    return array;
 }
 
-class NumberBaseBall extends Component{
+const NumberBaseBall = () => {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            result : '',
-            value : '',
-            answer : getNumbers(),
-            tries : [],
-        };
+    const [result, setResult] = useState('');
+    const [value, setValue] = useState('');
+    const [answer, setAnswer] = useState(getNumbers());
+    const [tries, setTries] = useState([]);
+    const InputRef = useRef(null);
 
-        console.log(this.state.answer);
-    }
-
-    onSubmitForm = (e) => {
+    const onSubmitForm = (e) => {
         e.preventDefault();
-        if(Number(this.state.value) === this.state.answer){
-            this.setState({
-                result : "정답입니다!",
-                value : '',
-            });
+        if(value === answer.join('')){ //정답일 경우
+            setResult("정답입니다! 홈런~");
+            setTries((prevState) => [...prevState, {try : value, result : '홈런!'}]);
+
+
+            alert("다시 게임을 시작하겠습니다.")
+            //게임 다시 셋팅하기
+            setValue('');
+            setAnswer(getNumbers());
+            setTries([]);
         }
-        else{
-            // STRIKE BALL 계산
-            let ans = this.state.answer;
-            let inp = this.state.value;
-            let strike = 0;
-            let ball = 0;
-            for(let i = 0; i < 4; i++){
-                if(ans[i] === inp[i]){
-                    strike += 1;
-                }
-                else if (ans.indexOf(inp)){
-                    ball += 1;
-                }
+        else{ //정답이 아닐 경우
+            if(tries.length >= 9){ //10번 이상 틀렸을 때
+                setResult(`10번 이상 틀리셨습니다. 정답은 ${answer}이였습니다.`);
+                alert("게임을 다시 시작합니다!");
+                //게임 다시 셋팅하기
+                setValue('');
+                setAnswer(getNumbers());
+                setTries([]);
             }
-            this.setState({
-                result : {strike} + 'STRIKE   ' + {ball} + 'BALL',
-                value : '',
-                tires : this.state.tries.concat(this.state.value),
-            })
+            else{ //아직 시도 기회가 남았을 경우
+                let strike = 0;
+                let ball = 0;
+                const inputAnswer = value.split('').map((v) => parseInt(v));
+                // STRIKE BALL 계산
+                for(let i = 0 ; i < 4; i++){
+                    if(inputAnswer[i] === answer[i]){ strike += 1;}
+                    else if(answer.includes(inputAnswer[i])){ ball += 1;}
+                }
+                setTries((prevState) => [...prevState , { try : value , result : `STRIKE : ${strike}  BALL : ${ball}`}]);
+                setValue('');
+            }
         }
+
+        InputRef.current.focus();
     }
 
-    onChangeInput = (e) => {
-        this.setState({ value : e.target.value })
-        console.log(this.state.value);
+    const onChangeInput = (e) => {
+        setValue(e.target.value);
     }
 
-    render() {
-        return(
-          <>
-              <h1>{this.state.result}</h1>
-              <form onSubmit={this.onSubmitForm}>
-                  <input maxLength={4} value={this.state.value} onChange={this.onChangeInput}/>
-                  <button type="submit"> 입력 </button>
-              </form>
-              <div>시도 횟수 : {this.state.tries.length}</div>
-              <ul>
-                  {this.state.tries.map((item) => <li> {item} </li>)}
-              </ul>
-              <br/>
-
-
-          </>
-        );
-    }
+    return(
+      <>
+          <h1>{result}</h1>
+          <form onSubmit={onSubmitForm}>
+              <input ref={InputRef} maxLength={4} value={value} onChange={onChangeInput}/>
+              <button type="submit"> 입력 </button>
+          </form>
+          <div>시도 횟수 : {tries.length}</div>
+          <ul>
+              {tries.map((v,i) => <Try key={`${i + 1}차 시도 : `} tryInfo={v}/>)}
+          </ul>
+          <br/>
+      </>
+    );
 
 
 }
