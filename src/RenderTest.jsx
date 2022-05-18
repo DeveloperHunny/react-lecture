@@ -1,7 +1,8 @@
 import React, { PureComponent} from "react";
 
-class Test extends PureComponent{
+//COMMIT TEST
 
+class Test extends PureComponent{
     state = {
         counter : 0,
         str : 'Hello',
@@ -9,13 +10,7 @@ class Test extends PureComponent{
         boolVar : true,
         arr : [],
     }
-
-    // shouldComponentUpdate(nextProps, nextState, nextContext) {
-    //     if(this.state.counter !== nextState.counter){ return true; }
-    //
-    //
-    //     return false;
-    // }
+    
 
     onClick = () => {
         this.setState({
