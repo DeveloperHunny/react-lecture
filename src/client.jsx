@@ -6,6 +6,6 @@ import NumberBaseBall from "./numberBaseBall/NumberBaseBall";
 import Test from "./numberBaseBall/RenderTest";
 import ResponseCheck from "./responseCheck/ResponseCheck";
 import RSP from "./rsp/RSP";
-import Lotto from "./lotto/Lotto";
+import TicTacToe from "./tictactoe/TicTacToe";
 
-ReactDOM.render(<Lotto />, document.querySelector('#root'));
+ReactDOM.render(<TicTacToe />, document.querySelector('#root'));

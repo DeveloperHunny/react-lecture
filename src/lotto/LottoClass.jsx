@@ -1,5 +1,5 @@
 import React, { Component, useState, useRef } from "react";
-import Ball from "../Ball";
+import Ball from "../numberBaseBall/Ball";
 
 function getWinNumbers(){
     console.log('getWinNumbers');
