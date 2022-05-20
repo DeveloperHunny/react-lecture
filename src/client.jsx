@@ -7,5 +7,6 @@ import Test from "./numberBaseBall/RenderTest";
 import ResponseCheck from "./responseCheck/ResponseCheck";
 import RSP from "./rsp/RSP";
 import TicTacToe from "./tictactoe/TicTacToe";
+import MineSearch from "./MineSearch";
 
-ReactDOM.render(<TicTacToe />, document.querySelector('#root'));
+ReactDOM.render(<MineSearch />, document.querySelector('#root'));
