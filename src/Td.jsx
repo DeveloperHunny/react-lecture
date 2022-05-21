@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useState} from "react";
+import React, {memo, useCallback, useContext, useMemo, useState} from "react";
 import {CLICK_MINE, CODE, FLAG_CELL, NORMALIZE_CELL, OPEN_CELL, QUESTION_CELL, TableContext} from "./MineSearch";
 
 const getTdStyle = (code) => {
@@ -21,9 +21,8 @@ const getTdStyle = (code) => {
 }
 
 const getTdText = (data) => {
+    console.log("getTdText");
     switch ( data ){
-        case CODE.NORMAL:
-            return '';
         case CODE.MINE:
             return 'X';
         case CODE.CLICKED_MINE:
@@ -34,12 +33,15 @@ const getTdText = (data) => {
         case CODE.QUESTION_MINE:
         case CODE.QUESTION:
             return '?';
-        default:
+        case CODE.NORMAL:
             return '';
+        default:
+            return data || '';
     }
 }
 
-const Td = ({ rowIndex, cellIndex }) => {
+const Td = memo(({ rowIndex, cellIndex }) => {
+
     const { tableData, dispatch, halted } = useContext(TableContext);
 
     const onClickTd = useCallback(() => {
@@ -80,14 +82,14 @@ const Td = ({ rowIndex, cellIndex }) => {
         }
     }, [tableData[rowIndex][cellIndex], halted]);
 
-    return (
+    return useMemo(() => (
         <td style={getTdStyle(tableData[rowIndex][cellIndex])}
             onClick={onClickTd}
             onContextMenu={onRightClickTd}
         >
             {getTdText(tableData[rowIndex][cellIndex])}
         </td>
-    )
-}
+    ), [tableData[rowIndex][cellIndex]]);
+});
 
 export default Td;

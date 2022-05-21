@@ -1,7 +1,13 @@
-import React , { useReducer, createContext, useMemo } from "react";
+import React, {useReducer, createContext, useMemo, useEffect} from "react";
 import Table from "./Table";
 import Form from "./Form";
-
+export const START_GAME = 'START_GAME';
+export const OPEN_CELL = 'OPEN_CELL';
+export const CLICK_MINE = 'CLICK_MINE';
+export const FLAG_CELL = 'FALG_CELL';
+export const QUESTION_CELL = 'QUESTION_CELL';
+export const NORMALIZE_CELL = 'NORMALIZE_CELL';
+export const INCREMENT_TIMER = 'INCREMENT_TIMER';
 
 export const CODE = {
     MINE : -7,
@@ -24,13 +30,19 @@ export const TableContext = createContext({
 const initialState = {
     tableData: [],
     result: '',
-    timer: '',
+    timer: 0,
     halted : true,
+    openedCount : 0,
+    data : {
+        row : 0,
+        cell : 0,
+        mine : 0,
+    },
 
 }
 
 const plantMine = (row, cell, mine) => {
-    console.log(row, cell, mine);
+
     const candidate = Array(row * cell).fill().map((arr,i) => {
        return i;
     });
@@ -55,17 +67,10 @@ const plantMine = (row, cell, mine) => {
         data[ver][hor] = CODE.MINE;
     }
 
-    console.log(data);
     return data;
 }
 
 
-export const START_GAME = 'START_GAME';
-export const OPEN_CELL = 'OPEN_CELL';
-export const CLICK_MINE = 'CLICK_MINE';
-export const FLAG_CELL = 'FALG_CELL';
-export const QUESTION_CELL = 'QUESTION_CELL';
-export const NORMALIZE_CELL = 'NORMALIZE_CELL';
 
 
 
@@ -75,16 +80,77 @@ const reducer = (state,action) => {
         case START_GAME:
             return {
                 ...state,
+                data : {
+                    row : action.row,
+                    cell : action.cell,
+                    mine : action.mine
+                },
                 tableData : plantMine(action.row, action.cell, action.mine),
                 halted: false,
+                openedCount: 0,
+                timer : 0,
+                result : '',
             }
         case OPEN_CELL:{
             const tableData = [...state.tableData];
-            tableData[action.row] = [...state.tableData[action.row]];
-            tableData[action.row][action.cell] = CODE.OPENED;
+            tableData.forEach((row, i) => {
+                tableData[i] = [...state.tableData[i]];
+            });
+
+            const check = new Array(tableData.length).fill().map(() => new Array(tableData[0].length).fill(false));
+            let count = 0;
+            console.log(check);
+
+            const checkAround = (row, cell) => {
+
+                if(check[row][cell] || tableData[row][cell] >= 0) return;
+                check[row][cell] = true;
+                count += 1;
+
+                let around = [];
+                let around_pos = [];
+                //-1,0 부터 시계방향
+                const dxy = [[-1,0], [-1,1], [0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1]];
+                dxy.forEach((move) => {
+                    let ny = row + move[0]; let nx = cell + move[1];
+                    if(0 <= ny && ny < tableData.length && 0 <= nx && nx < tableData[row].length){
+                        around = around.concat(tableData[ny][nx]);
+                        around_pos.push([ny,nx]);
+                    }
+                });
+
+                const mines = around.filter((v) => [CODE.MINE, CODE.FLAG_MINE, CODE.QUESTION_MINE].includes(v));
+
+
+                if(mines.length === 0){
+                    tableData[row][cell] = 0;
+                    around_pos.forEach((n) => {
+                        checkAround(n[0],n[1]);
+                    });
+                }
+                else{
+                    tableData[row][cell] = mines.length;
+                }
+            }
+
+            checkAround(action.row, action.cell);
+
+            let halted = false;
+            let result = '';
+
+            console.log(state.openedCount + count);
+            console.log(state.data.row *  state.data.cell - state.data.mine);
+            if(state.data.row *  state.data.cell - state.data.mine === state.openedCount + count){ //승리
+                halted = true;
+                result = state.timer + '초만에 승리하셨습니다.';
+            }
+
             return{
                 ...state,
                 tableData,
+                halted,
+                result,
+                openedCount: state.openedCount + count,
             };
 
         }
@@ -143,6 +209,12 @@ const reducer = (state,action) => {
                 tableData,
             }
         }
+        case INCREMENT_TIMER:{
+            return {
+                ...state,
+                timer : state.timer + 1,
+            }
+        }
         default:
             return state;
     }
@@ -153,6 +225,20 @@ const MineSearch = () => {
     const { tableData, result, timer, halted } = state;
 
     const value = useMemo(() => ({ tableData : tableData , halted: halted, dispatch }), [tableData, halted]);
+
+    useEffect(()=> {
+        let timer;
+        if(halted === false){
+            timer = setInterval(() => {
+                dispatch({type:INCREMENT_TIMER});
+            },1000);
+
+        }
+        return() => {
+            clearInterval(timer);
+        }
+
+    },[halted]);
 
     return(
         <TableContext.Provider value={value}>
